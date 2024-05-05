@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -ms-flex: 1;
+  flex: 1;
+  height: 100%;
+  overflow: hidden
+}
+
+body {
+  font-family: Roboto,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -ms-flex: 1;
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  font-size: .8725rem;
+  font-weight: 400;
+  line-height: 1.5385;
+  color: #4f4e4e;
+  text-align: left;
+  background-color: #f5f5f5;
+}
+.ph {
+  font-size: 1.2rem;
+}
+.page-content {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  position: relative;
+  overflow: hidden
+}
+
+.content-wrapper {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+  min-width: 0
+}
+
+.content-inner {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch
+}
+.content {
+  overflow-y: scroll;
+}
+.active {
+  @apply bg-yellow-500 text-blue-800
+}
+
+
+/* Transition router view */
+.fade-enter-active,
+.fade-leave-active {
+    transition-duration: 0.1s;
+    transition-property: opacity;
+    transition-timing-function: ease;
+}
+
+.fade-enter,
+.fade-leave-active {
+    opacity: 0
+}
