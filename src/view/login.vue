@@ -15,17 +15,21 @@
                 </div>
             </form>
         </div>
+        <div v-show="isLoading" class="fixed inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center">
+            <div class="loader"></div>
+        </div>
     </div>
 </template>
 
 <script>
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
-import { reactive } from '@vue/reactivity'
+import { reactive, ref } from '@vue/reactivity'
 export default {
     setup () {
         const store = useStore()
         const router = useRouter()
+        const isLoading = ref(false)
         const form = reactive({
             email: 'nendisofiandy84@gmail.com',
             password: 'pwlan123'
@@ -42,8 +46,10 @@ export default {
                 err.password = 'Sandi harus diisi'
             }
             if(form.email && form.password) {
+                isLoading.value = true
                 store.dispatch('auth/login', form)
                 .then(() => {
+                    isLoading.value = false
                     router.push('/')
                 })
                 .catch(error => {
@@ -60,6 +66,7 @@ export default {
         return {
             form,
             err,
+            isLoading,
             onSubmit,
         }
     }

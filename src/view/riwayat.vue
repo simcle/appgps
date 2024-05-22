@@ -1,14 +1,18 @@
 <template>
-    <div class="grid grid-cols-10 h-full">
-        <div class="col-span-8 relative">
+    <div class="grid grid-cols-9 h-full">
+        <div class="col-span-7 relative flex items-center justify-center">
             <div id="map" class="w-full h-full"></div>
-            <div class="absolute p-3 bg-white z-10 border bottom-0 right-0 m-3">{{info}}</div>
+            <transition enter-active-class="animate__animated animate__fadeIn animate__faster">
+                <div v-show="isLoading" class="absolute bg-gray-400 inset-0 bg-opacity-50 flex items-center justify-center">
+                    <div class="loader"></div>
+                </div>
+            </transition>
         </div>
         <div class="col-span-2 bg-white p-5 border-l">
             <div class="mb-5">
-                <div class="mb-2">No Polisi</div>
+                <div class="mb-2">No Polisi <span class="text-red-500">*</span></div>
                 <div ref="elDropDown"  class="relative">
-                    <input v-model="form.nopol" @click="showDropdown = !showDropdown" type="text" name="nopol" :class="{'border-red-500': err.nopol}" class="h-9 w-full focus:outline-none cursor-pointer border px-3 bg-gray-100 rounded" placeholder="pilih no polisi kendaraan" readonly>
+                    <input v-model="form.nopol" @click="showDropdown = !showDropdown" type="text" name="nopol" :class="{'border-red-500': err.nopol}" class="h-9 w-full focus:outline-none cursor-pointer border px-3 bg-gray-100 rounded" placeholder="Pilih no polisi kendaraan" readonly>
                     <div v-show="showDropdown" class="absolute w-full bg-white rounded z-10 mt-1 border">
                         <ul class="py-2 shadow-lg">
                             <li v-for="(device, i) in devices" :key="i" @click="onSelectDevice(device)" class="px-5 py-2 hover:bg-gray-100 cursor-pointer" :class="{'bg-blue-500 hover:!bg-blue-500 text-blue-50':form.nopol == device.nopol}">{{device.nopol}}</li>
@@ -18,38 +22,150 @@
             </div>
             <div class="mb-5">
                 <div class="mb-2">Mulai :</div>
-                <DatePicker v-model="date.start" locale="id" mode="dateTime" is24hr>
-                    <template #default="{inputValue, togglePopover}">
-                        <div class="relative flex items-center h-9">
-                            <input @click="togglePopover" :value="inputValue" type="text" readonly class="h-9 w-72 cursor-pointer border rounded focus:outline-none pl-12 pr-3">
-                            <div class="absolute flex bg-gray-100 rounded-l items-center justify-center border h-full w-9"><i class="ph ph-calendar"></i></div>
-                        </div>
-                    </template>
-                </DatePicker>
+                <div class="grid grid-cols-5 gap-1">
+                    <div class="col-span-3">
+                        <DatePicker v-model="date.start" locale="id" mode="date" is24hr :max-date="new Date()">
+                            <template #default="{inputValue, togglePopover}">
+                                <div class="relative flex items-center h-9">
+                                    <input @click="togglePopover" :value="inputValue" type="text" readonly class="h-9 cursor-pointer border rounded focus:outline-none w-full pl-12">
+                                    <div class="absolute flex bg-gray-100 rounded-l items-center justify-center border h-full w-9"><i class="ph ph-calendar"></i></div>
+                                </div>
+                            </template>
+                        </DatePicker>
+                    </div>
+                    <div class="col-span-2">
+                        <DatePicker v-model="date.start" locale="id" mode="Time" hide-time-header is24hr :max-date="new Date()">
+                            <template #default="{inputValue, togglePopover}">
+                                <div class="relative flex items-center h-9">
+                                    <input @click="togglePopover" :value="inputValue" type="text" readonly class="h-9 cursor-pointer border rounded focus:outline-none w-full pl-12 pr-3">
+                                    <div class="absolute flex bg-gray-100 rounded-l items-center justify-center border h-full w-9"><i class="ph ph-clock"></i></div>
+                                </div>
+                            </template>
+                        </DatePicker>   
+                    </div>
+                </div>
             </div>
             <div class="mb-5">
                 <div class="mb-2">Akhir :</div>
-                <DatePicker v-model="date.end" locale="id" mode="dateTime" is24hr>
-                    <template #default="{inputValue, togglePopover }">
-                        <div class="relative flex items-center h-9">
-                            <input @click="togglePopover" :value="inputValue" type="text" readonly class="h-9 w-72 cursor-pointer border rounded focus:outline-none pl-12 pr-3">
-                            <div class="absolute flex bg-gray-100 rounded-l items-center justify-center border h-full w-9"><i class="ph ph-calendar"></i></div>
-                        </div>
-                    </template>
-                </DatePicker>
+                <div class="grid grid-cols-5 gap-1">
+                    <div class="col-span-3">
+                        <DatePicker v-model="date.end" locale="id" mode="date" is24hr :max-date="new Date()">
+                            <template #default="{inputValue, togglePopover }">
+                                <div class="relative flex items-center h-9">
+                                    <input @click="togglePopover" :value="inputValue" type="text" readonly class="h-9 cursor-pointer border rounded focus:outline-none w-full pl-12 pr-3">
+                                    <div class="absolute flex bg-gray-100 rounded-l items-center justify-center border h-full w-9"><i class="ph ph-calendar"></i></div>
+                                </div>
+                            </template>
+                        </DatePicker>
+                    </div>
+                    <div class="col-span-2">
+                        <DatePicker v-model="date.end" locale="id" mode="time" is24hr :max-date="new Date()">
+                            <template #default="{inputValue, togglePopover }">
+                                <div class="relative flex items-center h-9">
+                                    <input @click="togglePopover" :value="inputValue" type="text" readonly class="h-9 cursor-pointer border rounded focus:outline-none w-full pl-12 pr-3">
+                                    <div class="absolute flex bg-gray-100 rounded-l items-center justify-center border h-full w-9"><i class="ph ph-clock"></i></div>
+                                </div>
+                            </template>
+                        </DatePicker>
+                    </div>
+                </div>
             </div>
             <div class="mb-5">
-                <button @click="onProcess" class="h-9 w-full bg-blue-700 text-blue-50 rounded hover:bg-blue-800">Proses</button>
+                <button @click="onProcess" class="h-9 w-full text-blue-50 rounded" :class="[isLoading ? 'bg-blue-400': 'bg-blue-700 hover:bg-blue-800']" :disabled="isLoading">
+                    Proses
+                </button>
             </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <button @click="onPlay" class="h-9 w-full bg-blue-700 rounded text-blue-50 flex items-center justify-center"><i class="ph ph-play" style="font-size: 20px"></i></button>
+            <div v-if="reported.length > 0">
+                <div class="relative">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <div class="text-center text-xl font-semibold">{{detailData.nopol}}</div>
+                            <div>{{detailData.merk}}</div>
+                        </div>
+                        <div class="border-y my-3">
+                            <div class="text-center">{{getTimeDate(detailData.ts).date}}</div>
+                            <div class="text-center font-mono">{{getTimeDate(detailData.ts).time}}</div>
+                        </div>
+                        <div class="mb-5 text-center -mx-5 leading-none grid grid-cols-2 divide-x divide-gray-600">
+                            <div class="flex items-center tems-center px-5 justify-between">
+                                <div class="rounded border h-full w-9 relative overflow-hidden">
+                                    <div class="bg-blue-500 absolute w-full bottom-0 z-20" style="height: 50%"></div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-medium font-mono">104</div>
+                                    <div class="text-xs text-gray-400">Fuel</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-5xl leading-none font-semibold font-mono">{{detailData.sp}}</div>
+                                <div class="text-xs text-gray-400">Km/Jam</div>
+                            </div>
+                        </div>
+                        <div class="mb-5 font-light text-xs">
+                            <table class="w-full">
+                                <tbody class="divide-y divide-gray-600">
+                                    <tr>
+                                        <td style="width: 35%">Odometer</td>
+                                        <td>: {{detailData.totalOdometer}} Km</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mesin</td>
+                                        <td>: {{detailData.ignition ? 'On':'Off'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>GPS imei</td>
+                                        <td>: {{detailData.imei}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>GSM no</td>
+                                        <td>: {{detailData.gsm}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>GSM signal</td>
+                                        <td>: {{detailData.gsmSignal}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Koordinat</td>
+                                        <td>: {{getLngLat(detailData.latlng).lat}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>: {{getLngLat(detailData.latlng).lng}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <button class="bg-green-500 h-9 px-2 text-green-50 w-full rounded">Mesin On</button>
+                            </div>
+                            <div>
+                                <button class="bg-red-500 h-9 px-2 text-green-50 w-full rounded">Mesin Off</button>
+                            </div>
+                        </div> -->
+                    </div>
                 </div>
-                <div>
-                    <button class="h-9 w-full bg-blue-700 rounded text-blue-50 flex items-center justify-center"><i class="ph ph-stop" style="font-size: 20px"></i></button>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <button @click="onPlay" :class="{'bg-green-500': playPause}" class="h-9 w-full bg-blue-700 rounded text-blue-50 flex items-center justify-center">
+                            <i v-if="!playPause" class="ph ph-play" style="font-size: 20px"></i>
+                            <i v-if="playPause" class="ph ph-pause" style="font-size: 20px"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <button class="h-9 w-full bg-blue-700 rounded text-blue-50 flex items-center justify-center"><i class="ph ph-stop" style="font-size: 20px"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
+        <transition enter-active-class="animate__animated animate__fadeIn animate__faster">
+            <div v-if="isPopup" class="fixed inset-0 bg-gray-800 bg-opacity-55 flex items-center justify-center">
+                <div class=" w-3/12 p-5 bg-white rounded shadow-lg border flex items-center flex-col">
+                    <div class="text-center font-semibold text-lg">Tidak ada data yang ditemukan</div>
+                    <button @click="isPopup = false" class="h-9 bg-blue-500 text-blue-50 rounded px-5 mt-5 hover:bg-blue-600">OK</button>
+                </div>
+            </div>
+        </transition>
     </div>
 </template>
 
@@ -68,13 +184,15 @@ import iconCar from '../assets/car.png'
 export default {
     components: {DatePicker},
     setup () {
-        const start = new Date('2024/04/29 09:18')
+        const start = new Date()
+        start.setHours(0, 0, 0)
         const map = ref(null)
         const devices = ref([])
         const showDropdown = ref(false)
         const form = ref({
             imei: '',
-            nopol: ''
+            nopol: '',
+            gsm: ''
         })
         const err = ref({
             nopol: ''
@@ -86,7 +204,16 @@ export default {
         const elDropDown = ref(null)
         const route = reactive({
             type: 'FeatureCollection',
-            features: []
+            features: [
+                {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                        coordinates: [0, 0],
+                        type: 'LineString'
+                    },
+                }
+            ]
         })
         const point = reactive({
             type: 'FeatureCollection',
@@ -163,6 +290,7 @@ export default {
         const onSelectDevice = (device) => {
             form.value.nopol = device.nopol
             form.value.imei = device.imei
+            form.value.gsm = device.gsm
             showDropdown.value = false
             err.value.nopol = ''
         }
@@ -173,12 +301,29 @@ export default {
             }
         }
 
-        const reported = ref(null)
+        const reported = ref([])
+        const isLoading = ref(false)
+        const isPopup = ref(false)
+
+        const detailData = ref({
+            nopol: '',
+            imei: '',
+            gsm: '',
+            gsmSignal: '',
+            ignition: '',
+            totalOdometer: '',
+            ang: '',
+            ts: '',
+            sp: '',
+            latlng: ''
+        })
+
         const onProcess = () => {
             if(!form.value.nopol) {
                 err.value.nopol = true
             }
             if(form.value.nopol) {
+                isLoading.value = true
                 axios.get('/reported', {
                     params: {
                         imei: form.value.imei,
@@ -187,68 +332,68 @@ export default {
                     }
                 })
                 .then(res => {
+                    isLoading.value =false
                     reported.value = res.data
                     const myLine = []
                     const datas = res.data
-                    for(let i = 0; i < datas.length; i++) {
-                        const el = datas[i]
-                        const latlng = el.latlng.split(',').reverse()
-                        myLine.push(latlng)
-                    }
-                    const line = lineString(myLine)
-                    route.features.push(line)
-                    point.features.push({
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: myLine[0]
-                        },
-                        properties: {
-                            nopol: form.value.nopol,
-                            imei: reported.value[0].imei,
-                            ang: reported.value[0].ang
+                    if(datas.length > 0) {
+                        detailData.value.nopol = form.value.nopol
+                        detailData.value.imei = form.value.imei
+                        detailData.value.gsm = form.value.gsm
+                        detailData.value.ts = datas[0].ts
+                        detailData.value.sp = datas[0].sp
+                        detailData.value.latlng = datas[0].latlng
+                        route.features[0].geometry.coordinates = [0, 0]
+                        for(let i = 0; i < datas.length; i++) {
+                            const el = datas[i]
+                            const latlng = el.latlng.split(',').reverse()
+                            myLine.push(latlng)
                         }
-                    })
-                    map.value.getSource('route').setData(route)
-                    map.value.getSource('point').setData(point)
-                    const coordinates = route.features[0].geometry.coordinates
-                    const bounds = new mapboxgl.LngLatBounds(
-                        coordinates[0],
-                        coordinates[0]
-                    )
-                    for (const coord of coordinates) {
-                        bounds.extend(coord);
+                        if(myLine.length > 0) {
+                            const line = lineString(myLine)
+                            route.features[0] = line
+                            point.features[0] = {
+                                type: 'Feature',
+                                geometry: {
+                                    type: 'Point',
+                                    coordinates: myLine[0]
+                                },
+                                properties: {}
+                            }
+                            map.value.getSource('route').setData(route)
+                            map.value.getSource('point').setData(point)
+                            const coordinates = route.features[0].geometry.coordinates
+                            const bounds = new mapboxgl.LngLatBounds(
+                                coordinates[0],
+                                coordinates[0]
+                            )
+                            for (const coord of coordinates) {
+                                bounds.extend(coord);
+                            }
+                            map.value.fitBounds(bounds, {
+                                padding: {top: 30, bottom: 70, left: 90, right: 90}
+                            });
+                            onSetupRoute()
+                        }
+                    } else {
+                        isPopup.value = true
                     }
-                    map.value.fitBounds(bounds, {
-                        padding: {top: 30, bottom: 70, left: 90, right: 90}
-                    });
                 })
             }
         }
-        const info = ref(null)
 
-        const onPlay = () => {
+        const myArr = []
+        const myProperties = []
+        const arc = []
+        const properties = []
+        const onSetupRoute = () => {
             const routes = route.features[0].geometry.coordinates
-            const myArr = []
-            const mySpeed = []
-            const myProperties = []
-            const arc = []
-            const properties = []
-          
             for(let i = 0; i < routes.length; i++) {
                     const el = routes[i]
                     const rep = reported.value[i]
                     if(i > 1) {
                         const line = lineString(myArr)
                         const distance = turfLength(line, {units: 'meters'})
-                        const timestamp = myProperties[1].ts - myProperties[0].ts
-                        const speed = mySpeed[1]
-                        const timeSecond = timestamp / 1000
-                        const timeDistance = distance / timeSecond
-                        const speedDistance = timeDistance / speed
-
-                        console.log(distance, speed, timeSecond)
-
                         for(let r = 0; r < distance ; r += distance / 100) {
                             var segment = along(line, r, {units: 'meters'})
                             arc.push(segment.geometry.coordinates)
@@ -257,30 +402,92 @@ export default {
                     }
                     if(myArr.length == 2) {
                         myProperties.splice(0, 1)
-                        mySpeed.splice(0, 1)
                         myArr.splice(0, 1)
                     }
                     
-                    myProperties.push({sp: rep.sp, ang: rep.ang, ts: rep.ts})
-                    mySpeed.push(rep.sp)
-                    myArr.push(el)
-                
+                    myProperties.push({
+                        totalOdometer: rep.totalOdometer, 
+                        gsmSignal: rep.gsmSignal, 
+                        ignition: rep.ignition, 
+                        latlng: rep.latlng, 
+                        sp: rep.sp, 
+                        ang: rep.ang, 
+                        ts: rep.ts
+                    })
+                    myArr.push(el)   
             }
-            const steps = arc.length
-            console.log(steps, properties.length)
-            var counter = 0
-            animate(counter)
-            function animate () {
-                point.features[0].geometry.coordinates = arc[counter]
-                point.features[0].properties.ang = properties[counter].ang;
-                info.value = properties[counter]
-                map.value.getSource('point').setData(point);
+            
+        }
 
-                if (counter < steps) {
-                    requestAnimationFrame(animate);
-                }
-                counter = counter + 1
+        var counter = 0
+        const myReq = ref(null)
+        const playPause = ref(false)
+        const onPlay = () => {
+            playPause.value = !playPause.value
+            if(playPause.value) {
+                animate(counter)
+            } else {
+                cancelAnimationFrame(myReq.value)
             }
+        }
+        function animate () {
+            const steps = arc.length
+            point.features[0].geometry.coordinates = arc[counter]
+            point.features[0].properties.ang = properties[counter].ang;
+            detailData.value.totalOdometer = properties[counter].totalOdometer
+            detailData.value.gsmSignal = properties[counter].gsmSignal
+            detailData.value.ignition = properties[counter].ignition
+            detailData.value.latlng = properties[counter].latlng
+            detailData.value.sp = properties[counter].sp
+            detailData.value.ts = properties[counter].ts
+            map.value.getSource('point').setData(point);
+            if (counter < steps) {
+                myReq.value = requestAnimationFrame(animate);
+            } else {
+                console.log('hallo')
+            }
+            counter = counter + 1
+        }
+        const getTimeDate = (d) => {
+            const date = new Date(d)
+            const days = ['Senin', 'Selasa', 'Rabu', 'Kmis', 'Jumat', 'Sabtu', 'Minggu']
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+            const day = days[date.getDay()]
+            let D = date.getDate()
+            const month = months[date.getMonth()]
+            const year = date.getFullYear()
+            let H = date.getHours()
+            let M = date.getMinutes()
+            let I = date.getSeconds()
+            D = checkTime(D)
+            H = checkTime(H)
+            M = checkTime(M)
+            I = checkTime(I)
+            function checkTime (i) {
+                if(i < 10) {
+                    i = `0${i}`
+                }
+                return i
+            }
+            var timestamp = {
+                date: `${day}, ${D} ${month} ${year}`,
+                time: `${H}:${M}:${I}`
+            }
+            return timestamp
+        }
+        const getLngLat = (latlng) => {
+            let coordinates = {
+                lat: 0,
+                lng: 0
+            }
+            if(latlng) {
+                coordinates = latlng.split(',')
+                coordinates = {
+                    lat: coordinates[0],
+                    lng: coordinates[1]
+                }
+            }
+            return coordinates
         }
         return {
             devices,
@@ -289,10 +496,16 @@ export default {
             date,
             form,
             err,
-            info,
+            detailData,
+            isLoading,
+            isPopup,
+            reported,
+            playPause,
             onSelectDevice,
             onProcess,
             onPlay,
+            getTimeDate,
+            getLngLat
         }
     }
 }

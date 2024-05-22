@@ -7,10 +7,10 @@
 					<router-link to="/" class="px-5 h-full flex items-center"><i class="ph ph-gps-fix mr-3"></i> Pelacakan</router-link>
 				</li>
 				<li class="h-full">
-					<router-link to="/perangkat" class="px-5 h-full flex items-center"><i class="ph ph-device-tablet-speaker mr-3"></i> Perangkat</router-link>
+					<router-link to="/riwayat" class="px-5 h-full flex items-center"><i class="ph ph-clock-counter-clockwise mr-3"></i> Riwayat</router-link>
 				</li>
 				<li class="h-full">
-					<router-link to="/riwayat" class="px-5 h-full flex items-center"><i class="ph ph-clock-counter-clockwise mr-3"></i> Riwayat</router-link>
+					<router-link to="/perangkat" class="px-5 h-full flex items-center"><i class="ph ph-device-tablet-speaker mr-3"></i> Perangkat</router-link>
 				</li>
 			</ul>
 			<div class="ml-auto mx-5 h-full relative">

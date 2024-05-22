@@ -6,21 +6,21 @@
                     <input type="text" name="search" class="h-11 border rounded w-full px-3">
                 </div>
                 <div class="flex flex-row items-center justify-between mx-5 mb-5 border-b-4 relative">
-                    <div ref="tabAll" @click="onTab('all')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Semu (10)</div>
-                    <div ref="tabOnline" @click="onTab('online')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Online (10)</div>
-                    <div ref="tabOffline" @click="onTab('offline')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Offline (0)</div>
+                    <div ref="tabAll" @click="onTab('all')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Semu ({{onlineStatus + offlineStatus}})</div>
+                    <div ref="tabOnline" @click="onTab('online')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Online ({{onlineStatus}})</div>
+                    <div ref="tabOffline" @click="onTab('offline')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Offline ({{offlineStatus}})</div>
                     <div ref="activeTab" class="absolute border-b-4 border-yellow-500 w-full rounded-full -bottom-1"></div>
                 </div>
                 <ul class="overflow-scroll flex-grow h-32">
-                    <li v-for="(device, i) in devices" :key="i" @click="onTrack(i)" class="px-5 py-2 hover:bg-gray-100 cursor-pointer">
+                    <li v-for="(device, i) in dataDevices" :key="i" @click="onTrack(i)" class="px-5 py-2 hover:bg-gray-100 cursor-pointer">
                         <div class="flex items-center justify-between">
                             <div>
                                 <div>{{device.nopol}}</div>
-                                <div class="text-xs text-gray-400">{{device.merk}} {{device.isOnline}}</div>
+                                <div class="text-xs text-gray-400">{{device.merk}}</div>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <i class="ph ph-car"></i>
-                                <i class="ph ph-letter-circle-p"></i>
+                            <div v-if="device.current" class="flex items-center space-x-2">
+                                <i :class="[device.current.ignition ? 'text-blue-500': 'text-gray-300']" class="ph ph-engine"></i>
+                                <i :class="[!device.current.movement && !device.current.ignition ? 'text-red-500': 'text-gray-400']" class="ph ph-letter-circle-p"></i>
                                 <i :class="[device.isOnline ? 'text-green-500':'text-gray-300']" class="ph ph-broadcast"></i>
                             </div>
                         </div>
@@ -36,7 +36,7 @@
             <transition enter-active-class="animate__animated animate__backInRight animate__faster" leave-active-class="animate__animated animate__backOutRight animate__faster">
                 <div v-if="showDetail" class="absolute bg-gray-700 m-2 w-64 right-0 bottom-0 rounded-t z-10 text-gray-200">
                     <div class="relative">
-                        <div class="absolute p-2 -top-0 right-0 text-red-500"><i class="ph ph-x-circle"></i></div>
+                        <button @click="onCloseTrack" class="absolute p-2 -top-0 right-0 text-red-500"><i class="ph ph-x-circle"></i></button>
                         <div class="p-5">
                             <div class="text-center">
                                 <div class="text-center text-xl font-semibold">{{detailData.nopol}}</div>
@@ -65,7 +65,7 @@
                                 <table class="w-full">
                                     <tbody class="divide-y divide-gray-600">
                                         <tr>
-                                            <td style="width: 30%">Odometer</td>
+                                            <td style="width: 35%">Odometer</td>
                                             <td>: {{detailData.current.totalOdometer}} Km</td>
                                         </tr>
                                         <tr>
@@ -81,6 +81,10 @@
                                             <td>: {{detailData.gsm}}</td>
                                         </tr>
                                         <tr>
+                                            <td>GSM signal</td>
+                                            <td>: {{detailData.current.gsmSignal}}</td>
+                                        </tr>
+                                        <tr>
                                             <td>Koordinat</td>
                                             <td>: {{getLngLat(detailData.current.latlng).lat}}</td>
                                         </tr>
@@ -91,14 +95,14 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
+                            <!-- <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <button class="bg-green-500 h-9 px-2 text-green-50 w-full rounded">Mesin On</button>
                                 </div>
                                 <div>
                                     <button class="bg-red-500 h-9 px-2 text-green-50 w-full rounded">Mesin Off</button>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -111,7 +115,7 @@
 import 'mapbox-gl/dist/mapbox-gl.css'
 import mapboxgl from 'mapbox-gl'
 import { reactive, ref } from '@vue/reactivity'
-import { onMounted, onUnmounted } from '@vue/runtime-core'
+import { computed, onMounted, onUnmounted } from '@vue/runtime-core'
 import iconCar from '../assets/car.png'
 import { io } from 'socket.io-client'
 import axios from 'axios'
@@ -180,6 +184,8 @@ export default {
         })
 
         const devices = ref([])
+        const onlineStatus = ref(0)
+        const offlineStatus = ref(0)
         const getData = () => {
             axios.get('/devices')
             .then(res => {
@@ -188,9 +194,11 @@ export default {
                 const coordinates = []
                 let coordinate = []
                 let ang = 0
+                const arrLength = geojson.features.length
+                geojson.features.splice(0, arrLength)
                 for(let i = 0; i < datas.length; i++) {
                     const el = datas[i]
-                    if(el.current) {
+                    if(el.current.latlng) {
                         const latlng = el.current.latlng.split(',')
                         coordinate = [parseFloat(latlng[1]), parseFloat(latlng[0])]
                         coordinates.push(coordinate)
@@ -219,8 +227,19 @@ export default {
                     bounds.extend(coord);
                 }
                 map.value.fitBounds(bounds, {
-                    padding: {top: 30, bottom: 30, left: 90, right: 90}
+                    speed: 5,
+                    padding: {top: 60, bottom: 60, left: 60, right: 60}
                 });
+            })
+            axios.get('/devices/status')
+            .then(res => {
+                const data = res.data
+                onlineStatus.value = data.find(obj => {
+                    return obj._id == false
+                }).count
+                offlineStatus.value = data.find(obj => {
+                    return obj._id == true
+                }).count
             })
             onLoadScoket()
         }
@@ -235,7 +254,7 @@ export default {
                     devices.value[index].current.batteryCurrent = data.batteryCurrent,
                     devices.value[index].current.gnssStatus = data.gnssStatus,
                     devices.value[index].current.sleepMode = data.sleepMode,
-                    devices.value[index].current.inginiton = data.inginiton,
+                    devices.value[index].current.ignition = data.ignition,
                     devices.value[index].current.movement = data.movement,
                     devices.value[index].current.ts = data.ts,
                     devices.value[index].current.latlng = data.latlng,
@@ -260,6 +279,7 @@ export default {
         const detailData = ref(null)
         const mayReq = ref(null)
         const myLine = ref([])
+
         const onTrack = (i) => {
             const device = devices.value[i]
             detailData.value = device
@@ -317,8 +337,6 @@ export default {
                             
                             distance = distance + movingInMeters
                             const options = {units: 'meters'};
-                            
-                            console.log(distance)
                             const movedPoint = along(line,distance , options);
                            
                             const position = movedPoint.geometry.coordinates
@@ -336,7 +354,14 @@ export default {
             })
             isTracking.value = true
         }
-
+        const onCloseTrack = () => {
+            socket.removeAllListeners()
+            cancelAnimationFrame(mayReq.value)
+            onLoadScoket()
+            isTracking.value = false
+            showDetail.value = false
+            getData()
+        }
         const getTimeDate = (d) => {
             const date = new Date(d)
             const days = ['Senin', 'Selasa', 'Rabu', 'Kmis', 'Jumat', 'Sabtu', 'Minggu']
@@ -373,19 +398,35 @@ export default {
             return coordinates
         }
 
+
+        const filterDevice = ref('all')
+        const dataDevices = computed(() => {
+            if(filterDevice.value == 'all') {
+                return devices.value
+            }
+            if(filterDevice.value == 'online') {
+                return devices.value.filter(obj => obj.isOnline == true)
+            }
+            if(filterDevice.value == 'offline') {
+                return devices.value.filter(obj => obj.isOnline == false)
+            }
+        })
         const onTab = (val) => {
             switch (val) {
                 case 'all': 
                     activeTab.value.style.width = tabAll.value.clientWidth+'px'
                     activeTab.value.style.left = tabAll.value.getBoundingClientRect().left-20+'px'
+                    filterDevice.value = val
                     break;
                 case 'online': 
                     activeTab.value.style.width = tabOnline.value.clientWidth+'px'
                     activeTab.value.style.left = tabOnline.value.getBoundingClientRect().left-20+'px'
+                    filterDevice.value = val
                     break;
                 case 'offline': 
                     activeTab.value.style.width = tabOffline.value.clientWidth+'px'
                     activeTab.value.style.left = tabOffline.value.getBoundingClientRect().left-20+'px'
+                    filterDevice.value = val
                     break;
             }
         }
@@ -395,10 +436,14 @@ export default {
             tabOffline,
             activeTab,
             devices,
+            onlineStatus,
+            offlineStatus,
             showDetail,
             detailData,
+            dataDevices,
             onTab,
             onTrack,
+            onCloseTrack,
             getTimeDate,
             getLngLat,
         }

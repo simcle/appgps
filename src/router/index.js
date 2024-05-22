@@ -4,7 +4,7 @@ const routes = [
     {
         path: '/',
         name: 'Beranda',
-        component: () => import('../view/dashboard.vue'),
+        component: () => import('../view/tracking.vue'),
         meta: {
             auth: true
         }
