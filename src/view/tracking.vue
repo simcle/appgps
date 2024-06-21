@@ -52,12 +52,12 @@
                                         <div class="bg-blue-500 absolute w-full bottom-0 z-20" style="height: 50%"></div>
                                     </div>
                                     <div class="text-right">
-                                        <div class="text-lg font-medium font-mono">104</div>
+                                        <div class="text-lg font-medium font-mono">0</div>
                                         <div class="text-xs text-gray-400">Fuel</div>
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="text-5xl leading-none font-semibold font-mono">{{detailData.current.sp}}</div>
+                                    <div class="text-5xl leading-none font-semibold font-mono">{{detailData.current.vehicleSpeed}}</div>
                                     <div class="text-xs text-gray-400">Km/Jam</div>
                                 </div>
                             </div>
@@ -65,12 +65,24 @@
                                 <table class="w-full">
                                     <tbody class="divide-y divide-gray-600">
                                         <tr>
-                                            <td style="width: 35%">Odometer</td>
-                                            <td>: {{detailData.current.totalOdometer}} Km</td>
-                                        </tr>
-                                        <tr>
                                             <td>Mesin</td>
                                             <td>: {{detailData.current.ignition ? 'On':'Off'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Oli level</td>
+                                            <td>: {{detailData.current.oilLevel}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width: 35%">RPM</td>
+                                            <td>: {{detailData.current.engineRPM}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width: 35%">Odometer</td>
+                                            <td>: {{detailData.current.totalMileage / 1000}} Km</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width: 35%">Suhu mesin</td>
+                                            <td>: {{detailData.current.engineTemperature}} ℃</td>
                                         </tr>
                                         <tr>
                                             <td>GPS imei</td>
@@ -136,7 +148,6 @@ export default {
 
         onMounted(() => {
             activeTab.value.style.width = tabAll.value.clientWidth+'px'
-            
             mapboxgl.accessToken = 'pk.eyJ1IjoibmVuZGkiLCJhIjoiY2t4cTQweHg3NzEwaDJvbXVud2RsbWxwNiJ9.C080KdMXt4y_4oSjHaMnmw';
 			map.value = new mapboxgl.Map({
 				container: 'map', // container ID
@@ -236,10 +247,10 @@ export default {
                 const data = res.data
                 onlineStatus.value = data.find(obj => {
                     return obj._id == false
-                }).count
+                }).count || 0
                 offlineStatus.value = data.find(obj => {
                     return obj._id == true
-                }).count
+                }).count || 0
             })
             onLoadScoket()
         }
@@ -253,6 +264,13 @@ export default {
                     devices.value[index].current.batteryVoltage = data.batteryVoltage,
                     devices.value[index].current.batteryCurrent = data.batteryCurrent,
                     devices.value[index].current.gnssStatus = data.gnssStatus,
+                    devices.value[index].current.vehicleSpeed = data.vehicleSpeed,
+                    devices.value[index].current.engineRPM = data.engineRPM,
+                    devices.value[index].current.totalMileage = data.totalMileage,
+                    devices.value[index].current.doorStatus = data.doorStatus,
+                    devices.value[index].current.engineWorktime = data.engineWorktime,
+                    devices.value[index].current.engineTemperature = data.engineTemperature,
+                    devices.value[index].current.oilLevel = data.oilLevel,
                     devices.value[index].current.sleepMode = data.sleepMode,
                     devices.value[index].current.ignition = data.ignition,
                     devices.value[index].current.movement = data.movement,
@@ -364,7 +382,7 @@ export default {
         }
         const getTimeDate = (d) => {
             const date = new Date(d)
-            const days = ['Senin', 'Selasa', 'Rabu', 'Kmis', 'Jumat', 'Sabtu', 'Minggu']
+            const days = ['Minggu','Senin', 'Selasa', 'Rabu', 'Kmis', 'Jumat', 'Sabtu']
             const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
             const day = days[date.getDay()]
             let D = date.getDate()
