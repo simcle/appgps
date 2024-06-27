@@ -6,7 +6,7 @@
                     <input type="text" name="search" class="h-11 border rounded w-full px-3">
                 </div>
                 <div class="flex flex-row items-center justify-between mx-5 mb-5 border-b-4 relative">
-                    <div ref="tabAll" @click="onTab('all')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Semu ({{onlineStatus + offlineStatus}})</div>
+                    <div ref="tabAll" @click="onTab('all')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Semua ({{onlineStatus + offlineStatus}})</div>
                     <div ref="tabOnline" @click="onTab('online')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Online ({{onlineStatus}})</div>
                     <div ref="tabOffline" @click="onTab('offline')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Offline ({{offlineStatus}})</div>
                     <div ref="activeTab" class="absolute border-b-4 border-yellow-500 w-full rounded-full -bottom-1"></div>
@@ -47,18 +47,16 @@
                                 <div class="text-center font-mono">{{getTimeDate(detailData.current.ts).time}}</div>
                             </div>
                             <div class="mb-5 text-center -mx-5 leading-none grid grid-cols-2 divide-x divide-gray-600">
-                                <div class="flex items-center tems-center px-5 justify-between">
-                                    <div class="rounded border h-full w-9 relative overflow-hidden">
-                                        <div class="bg-blue-500 absolute w-full bottom-0 z-20" style="height: 50%"></div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="text-lg font-medium font-mono">0</div>
-                                        <div class="text-xs text-gray-400">Fuel</div>
+                                <div class="flex flex-col items-end justify-center pr-5">
+                                    <div>
+                                        <div class="text-2xl">{{detailData.current.engineRPM}}</div>
+                                        <div class="text-right">RPM</div>
                                     </div>
                                 </div>
                                 <div>
                                     <div class="text-5xl leading-none font-semibold font-mono">{{detailData.current.vehicleSpeed}}</div>
                                     <div class="text-xs text-gray-400">Km/Jam</div>
+                                    <div class="text-xs text-gray-400">Kecepatan</div>
                                 </div>
                             </div>
                             <div class="mb-5 font-light text-xs">
@@ -73,16 +71,12 @@
                                             <td>: {{detailData.current.oilLevel}}</td>
                                         </tr>
                                         <tr>
-                                            <td style="width: 35%">RPM</td>
-                                            <td>: {{detailData.current.engineRPM}}</td>
-                                        </tr>
-                                        <tr>
                                             <td style="width: 35%">Odometer</td>
                                             <td>: {{detailData.current.totalMileage / 1000}} Km</td>
                                         </tr>
                                         <tr>
                                             <td style="width: 35%">Suhu mesin</td>
-                                            <td>: {{detailData.current.engineTemperature}} ℃</td>
+                                            <td>: {{detailData.current.engineTemperature * 0.1}} ℃</td>
                                         </tr>
                                         <tr>
                                             <td>GPS imei</td>
@@ -246,10 +240,10 @@ export default {
             .then(res => {
                 const data = res.data
                 onlineStatus.value = data.find(obj => {
-                    return obj._id == false
+                    return obj._id == true
                 }).count || 0
                 offlineStatus.value = data.find(obj => {
-                    return obj._id == true
+                    return obj._id == false
                 }).count || 0
             })
             onLoadScoket()

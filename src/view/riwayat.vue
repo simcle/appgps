@@ -87,13 +87,10 @@
                             <div class="text-center font-mono">{{getTimeDate(detailData.ts).time}}</div>
                         </div>
                         <div class="mb-5 text-center -mx-5 leading-none grid grid-cols-2 divide-x divide-gray-600">
-                            <div class="flex items-center tems-center px-5 justify-between">
-                                <div class="rounded border h-full w-9 relative overflow-hidden">
-                                    <div class="bg-blue-500 absolute w-full bottom-0 z-20" style="height: 50%"></div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-lg font-medium font-mono">104</div>
-                                    <div class="text-xs text-gray-400">Fuel</div>
+                            <div class="flex flex-col items-end justify-center pr-5">
+                                <div>
+                                    <div class="text-2xl">{{detailData.engineRPM}}</div>
+                                    <div class="text-right">RPM</div>
                                 </div>
                             </div>
                             <div>
@@ -105,12 +102,20 @@
                             <table class="w-full">
                                 <tbody class="divide-y divide-gray-600">
                                     <tr>
-                                        <td style="width: 35%">Odometer</td>
-                                        <td>: {{detailData.totalOdometer}} Km</td>
-                                    </tr>
-                                    <tr>
                                         <td>Mesin</td>
                                         <td>: {{detailData.ignition ? 'On':'Off'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 35%">Oli level</td>
+                                        <td>: {{detailData.oilLevel || 0}} Km</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 35%">Odometer</td>
+                                        <td>: {{detailData.totalMileage / 1000 || 0}} Km</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 35%">Suhu mesin</td>
+                                        <td>: {{detailData.engineTemperature * 0.1 || 0}} ℃</td>
                                     </tr>
                                     <tr>
                                         <td>GPS imei</td>
@@ -310,6 +315,11 @@ export default {
             imei: '',
             gsm: '',
             gsmSignal: '',
+            vehicleSpeed: '',
+            engineRPM: '',
+            totalMileage: '',
+            engineTemperature: '',
+            oilLevel: '',
             ignition: '',
             totalOdometer: '',
             ang: '',
@@ -408,6 +418,11 @@ export default {
                     myProperties.push({
                         totalOdometer: rep.totalOdometer, 
                         gsmSignal: rep.gsmSignal, 
+                        vehicleSpeed: rep.vehicleSpeed,
+                        engineRPM: rep.engineRPM,
+                        totalMileage: rep.totalMileage,
+                        engineTemperature: rep.engineTemperature,
+                        oilLevel: rep.oilLevel,
                         ignition: rep.ignition, 
                         latlng: rep.latlng, 
                         sp: rep.sp, 
@@ -436,6 +451,11 @@ export default {
             point.features[0].properties.ang = properties[counter].ang;
             detailData.value.totalOdometer = properties[counter].totalOdometer
             detailData.value.gsmSignal = properties[counter].gsmSignal
+            detailData.value.vehicleSpeed = properties[counter].vehicleSpeed
+            detailData.value.engineRPM = properties[counter].engineRPM
+            detailData.value.totalMileage = properties[counter].totalMileage
+            detailData.value.engineTemperature = properties[counter].engineTemperature
+            detailData.value.oilLevel = properties[counter].oilLevel
             detailData.value.ignition = properties[counter].ignition
             detailData.value.latlng = properties[counter].latlng
             detailData.value.sp = properties[counter].sp
