@@ -470,7 +470,7 @@ export default {
         }
         const getTimeDate = (d) => {
             const date = new Date(d)
-            const days = ['Senin', 'Selasa', 'Rabu', 'Kmis', 'Jumat', 'Sabtu', 'Minggu']
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kmis', 'Jumat', 'Sabtu']
             const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
             const day = days[date.getDay()]
             let D = date.getDate()
