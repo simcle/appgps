@@ -7,6 +7,9 @@
 					<router-link to="/" class="px-5 h-full flex items-center"><i class="ph ph-gps-fix mr-3"></i> Pelacakan</router-link>
 				</li>
 				<li class="h-full">
+					<router-link to="/laporan" class="px-5 h-full flex items-center"><i class="ph ph-file mr-3"></i> Laproan</router-link>
+				</li>
+				<li class="h-full">
 					<router-link to="/riwayat" class="px-5 h-full flex items-center"><i class="ph ph-clock-counter-clockwise mr-3"></i> Riwayat</router-link>
 				</li>
 				<li class="h-full">

@@ -26,6 +26,14 @@ const routes = [
         }
     },
     {
+        path: '/laporan',
+        name: 'Laporan',
+        component: () => import('../view/laporan.vue'),
+        meta: {
+            auth: true
+        }
+    },
+    {
         path: '/login',
         name: 'Login',
         component: () => import('../view/login.vue')
