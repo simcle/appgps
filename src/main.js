@@ -8,7 +8,6 @@ import '@phosphor-icons/web/regular'
 import './style.css'
 import 'animate.css'
 import App from './App.vue'
-
 axios.defaults.baseURL = import.meta.env.VITE_API_URL
 
 axios.interceptors.response.use(
@@ -27,4 +26,5 @@ axios.interceptors.response.use(
     }
 )
 store.commit('auth/SET_TOKEN', localStorage.getItem('token'))
+
 createApp(App).use(store).use(router).mount('#app')

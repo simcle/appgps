@@ -1,5 +1,4 @@
 import { createWebHistory, createRouter } from "vue-router";
-import store from "../store";
 const routes = [
     {
         path: '/',
@@ -29,6 +28,14 @@ const routes = [
         path: '/laporan',
         name: 'Laporan',
         component: () => import('../view/laporan.vue'),
+        meta: {
+            auth: true
+        }
+    },
+    {
+        path: '/statistik',
+        name: 'Statistik',
+        component: () => import('../view/statistik.vue'),
         meta: {
             auth: true
         }

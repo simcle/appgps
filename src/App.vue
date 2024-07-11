@@ -1,13 +1,16 @@
 <template>
 	<div class="content-wrapper">
 		<div v-if="user" class="h-14 w-full flex items-center bg-white border-b">
-			<div class="text-blue-700 px-5 text-2xl font-bold">GPS TRACK</div>
+			<div class="text-blue-800 px-5 text-2xl font-bold">GPS TRACK</div>
 			<ul class="h-full flex items-center font-semibold">
 				<li class="h-full">
 					<router-link to="/" class="px-5 h-full flex items-center"><i class="ph ph-gps-fix mr-3"></i> Pelacakan</router-link>
 				</li>
 				<li class="h-full">
-					<router-link to="/laporan" class="px-5 h-full flex items-center"><i class="ph ph-file mr-3"></i> Laproan</router-link>
+					<router-link to="/laporan" class="px-5 h-full flex items-center"><i class="ph ph-file mr-3"></i> Laporan</router-link>
+				</li>
+				<li class="h-full">
+					<router-link to="/statistik" class="px-5 h-full flex items-center"><i class="ph ph-file mr-3"></i> Statistik</router-link>
 				</li>
 				<li class="h-full">
 					<router-link to="/riwayat" class="px-5 h-full flex items-center"><i class="ph ph-clock-counter-clockwise mr-3"></i> Riwayat</router-link>
