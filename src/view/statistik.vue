@@ -28,7 +28,7 @@
 
             <div>
                 <div class="mb-2">Akhir :</div>
-                <DatePicker v-model="date.end" locale="id" mode="date" :max-date="new Date()">
+                <DatePicker v-model="date.end" locale="id" mode="date" :min-date="date.start" :max-date="new Date()">
                     <template #default="{inputValue, togglePopover }">
                         <div class="relative flex items-center h-9">
                             <input @click="togglePopover" :value="inputValue" type="text" readonly class="h-9 cursor-pointer border rounded focus:outline-none w-full pl-12 pr-3">
@@ -237,7 +237,7 @@ export default {
                     }
                     chart.update()
                     noPol.value = form.value.nopol
-                    averageSpeed.value = totalSpeed.value / mileageValue
+                    averageSpeed.value = totalSpeed.value / mileageValue || 0
                     dateStart.value = data[0]._id
                     dateEnd.value = data[dataLength - 1]._id
                 })
