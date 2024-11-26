@@ -31,8 +31,8 @@ export default {
         const router = useRouter()
         const isLoading = ref(false)
         const form = reactive({
-            email: 'nendisofiandy84@gmail.com',
-            password: 'pwlan123'
+            email: '',
+            password: ''
         })
         const err = reactive({
             email: '',

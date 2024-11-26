@@ -1,120 +1,165 @@
 <template>
-    <div class="grid grid-cols-9 h-full">
-        <div class="col-span-2 h-full bg-white border-r">
-            <div class="flex flex-col h-full flex-grow">
-                <div class="p-5">
-                    <input type="text" name="search" class="h-11 border rounded w-full px-3">
-                </div>
-                <div class="flex flex-row items-center justify-between mx-5 mb-5 border-b-4 relative">
-                    <div ref="tabAll" @click="onTab('all')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Semua ({{onlineStatus + offlineStatus}})</div>
-                    <div ref="tabOnline" @click="onTab('online')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Online ({{onlineStatus}})</div>
-                    <div ref="tabOffline" @click="onTab('offline')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Offline ({{offlineStatus}})</div>
-                    <div ref="activeTab" class="absolute border-b-4 border-yellow-500 w-full rounded-full -bottom-1"></div>
-                </div>
-                <ul class="overflow-scroll flex-grow h-32">
-                    <li v-for="(device, i) in dataDevices" :key="i" @click="onTrack(i)" class="px-5 py-2 hover:bg-gray-100 cursor-pointer">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <div>{{device.nopol}}</div>
-                                <div class="text-xs text-gray-400">{{device.merk}}</div>
-                            </div>
-                            <div v-if="device.current" class="flex items-center space-x-2">
-                                <i :class="[device.current.ignition ? 'text-blue-500': 'text-gray-300']" class="ph ph-engine"></i>
-                                <i :class="[!device.current.movement && !device.current.ignition ? 'text-red-500': 'text-gray-400']" class="ph ph-letter-circle-p"></i>
-                                <i :class="[device.isOnline ? 'text-green-500':'text-gray-300']" class="ph ph-broadcast"></i>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-                <div class="bg-blue-500 p-5">
-                    <div v-for="i in 1" :key="i"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-span-7 bg-blue-300 relative">
-            <div id="map" class="w-full h-full"></div>
-            <transition enter-active-class="animate__animated animate__backInRight animate__faster" leave-active-class="animate__animated animate__backOutRight animate__faster">
-                <div v-if="showDetail" class="absolute bg-gray-700 m-2 w-64 right-0 bottom-0 rounded-t z-10 text-gray-200">
-                    <div class="relative">
-                        <button @click="onCloseTrack" class="absolute p-2 -top-0 right-0 text-red-500"><i class="ph ph-x-circle"></i></button>
-                        <div class="p-5">
-                            <div class="text-center">
-                                <div class="text-center text-xl font-semibold">{{detailData.nopol}}</div>
-                                <div>{{detailData.merk}}</div>
-                            </div>
-                            <div class="border-y my-3">
-                                <div class="text-center">{{getTimeDate(detailData.current.ts).date}}</div>
-                                <div class="text-center font-mono">{{getTimeDate(detailData.current.ts).time}}</div>
-                            </div>
-                            <div class="mb-5 text-center -mx-5 leading-none grid grid-cols-2 divide-x divide-gray-600">
-                                <div class="flex flex-col items-end justify-center pr-5">
-                                    <div>
-                                        <div class="text-2xl">{{detailData.current.engineRPM}}</div>
-                                        <div class="text-right">RPM</div>
-                                    </div>
-                                </div>
+    <div class="h-full">
+        <div class="grid grid-cols-9 h-full">
+            <div class="col-span-2 h-full bg-white border-r">
+                <div class="flex flex-col h-full flex-grow">
+                    <div class="p-5">
+                        <input type="text" name="search" class="h-11 border rounded w-full px-3">
+                    </div>
+                    <div class="flex flex-row items-center justify-between mx-5 mb-5 border-b-4 relative">
+                        <div ref="tabAll" @click="onTab('all')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Semua ({{onlineStatus + offlineStatus}})</div>
+                        <div ref="tabOnline" @click="onTab('online')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Online ({{onlineStatus}})</div>
+                        <div ref="tabOffline" @click="onTab('offline')" class="w-full text-center pb-3 cursor-pointer hover:text-yellow-500 transition-all duration-300">Offline ({{offlineStatus}})</div>
+                        <div ref="activeTab" class="absolute border-b-4 border-yellow-500 w-full rounded-full -bottom-1"></div>
+                    </div>
+                    <ul class="overflow-scroll flex-grow h-32">
+                        <li v-for="(device, i) in dataDevices" :key="i" @click="onTrack(i)" class="px-5 py-2 hover:bg-gray-100 cursor-pointer">
+                            <div class="flex items-center justify-between">
                                 <div>
-                                    <div class="text-5xl leading-none font-semibold font-mono">{{detailData.current.vehicleSpeed}}</div>
-                                    <div class="text-xs text-gray-400">Km/Jam</div>
-                                    <div class="text-xs text-gray-400">Kecepatan</div>
+                                    <div>{{device.nopol}}</div>
+                                    <div class="text-xs text-gray-400">{{device.merk}}</div>
+                                </div>
+                                <div v-if="device.current" class="flex items-center space-x-2">
+                                    <i :class="[device.current.ignition ? 'text-blue-500': 'text-gray-300']" class="ph ph-engine"></i>
+                                    <i :class="[!device.current.movement && !device.current.ignition ? 'text-red-500': 'text-gray-400']" class="ph ph-letter-circle-p"></i>
+                                    <i :class="[device.isOnline ? 'text-green-500':'text-gray-300']" class="ph ph-broadcast"></i>
                                 </div>
                             </div>
-                            <div class="mb-5 font-light text-xs">
-                                <table class="w-full">
-                                    <tbody class="divide-y divide-gray-600">
-                                        <tr>
-                                            <td>Mesin</td>
-                                            <td>: {{detailData.current.ignition ? 'On':'Off'}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Oli level</td>
-                                            <td class="flex items-center space-x-1"><span>: </span> <svg :class="[detailData.current.oilLevel ? ' stroke-red-500 fill-red-500': 'stroke-green-500 fill-green-500']" fill="#000000" width="20px" height="20px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M 11 9 L 11 11 L 13 11 L 13 13 L 7.5625 13 L 5.84375 10.4375 L 5.53125 10 L 1 10 L 1 15.6875 L 6 17.6875 L 6 25 L 20.53125 25 L 20.8125 24.5625 L 29.5 12 L 31 12 L 31 10 L 27.65625 10 L 27.40625 10.1875 L 21 15 L 21 13 L 15 13 L 15 11 L 17 11 L 17 9 Z M 3 12 L 4.4375 12 L 6 14.34375 L 6 15.5 L 3 14.3125 Z M 25.78125 13.9375 L 19.5 23 L 8 23 L 8 15 L 19 15 L 19 19 L 20.59375 17.8125 Z M 29.5 16 C 29.5 16 28 18.671875 28 19.5 C 28 20.328125 28.671875 21 29.5 21 C 30.328125 21 31 20.328125 31 19.5 C 31 18.671875 29.5 16 29.5 16 Z"/></svg>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="width: 35%">Odometer</td>
-                                            <td>: {{detailData.current.totalMileage / 1000}} Km</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="width: 35%">Suhu mesin</td>
-                                            <td>: {{detailData.current.engineTemperature * 0.1}} ℃</td>
-                                        </tr>
-                                        <tr>
-                                            <td>GPS imei</td>
-                                            <td>: {{detailData.imei}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>GSM no</td>
-                                            <td>: {{detailData.gsm}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>GSM signal</td>
-                                            <td>: {{detailData.current.gsmSignal}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Koordinat</td>
-                                            <td>: {{getLngLat(detailData.current.latlng).lat}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td>: {{getLngLat(detailData.current.latlng).lng}}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <button class="bg-green-500 h-9 px-2 text-green-50 w-full rounded">Mesin On</button>
-                                </div>
-                                <div>
-                                    <button class="bg-red-500 h-9 px-2 text-green-50 w-full rounded">Mesin Off</button>
-                                </div>
-                            </div> -->
-                        </div>
+                        </li>
+                    </ul>
+                    <div class="bg-blue-500 p-5">
+                        <div v-for="i in 1" :key="i"></div>
                     </div>
                 </div>
-            </transition>
+            </div>
+            <div class="col-span-7 bg-blue-300 relative">
+                <div id="map" class="w-full h-full"></div>
+                <div v-show="isTracking && isTakePicture" style="width: 200px; height: 110px;;" class="bg-gray-300 absolute top-2 left-2 rounded flex items-center justify-center overflow-hidden border-2 border-white shadow-lg shadow-gray-500">
+                    <div v-show="!isProgress">
+                        <div class="absolute top-1 right-1 p-0.5">
+                            <ul class="flex items-center space-x-1">
+                                <li><button @click="showModal = true" class="h-5 w-5 bg-gray-50 rounded text-gray-700 border flex items-center justify-center leading-none"><i class="ph ph-corners-out pl-px"></i></button></li>
+                            </ul>
+                        </div>
+                        <img :src="imgUrl" alt="">
+                    </div>
+                    <div v-show="isProgress" class="h-3 bg-white w-full mx-3 relative">
+                        <div class="h-3 bg-blue-500" :style="{'width': progressBar}"></div>
+                    </div>
+                </div>
+                <transition enter-active-class="animate__animated animate__backInRight animate__faster" leave-active-class="animate__animated animate__backOutRight animate__faster">
+                    <div v-if="showDetail" class="absolute bg-gray-700 m-2 w-64 right-0 bottom-0 rounded-t z-10 text-gray-200">
+                        <div class="relative">
+                            <button @click="onCloseTrack" class="absolute p-2 -top-0 right-0 text-red-400 z-10"><i class="ph ph-x-circle"></i></button>
+                            <div class="p-5 relative">
+                                <div class="text-center">
+                                    <div class="text-center text-xl font-semibold leading-none">{{detailData.nopol}}</div>
+                                    <div>{{detailData.merk}}</div>
+                                </div>
+                                <div class="border-t border-gray-500 text-gray-300 mt-3 py-1.5">
+                                    <div class="text-center">{{getTimeDate(detailData.current.ts).date}}</div>
+                                    <div class="text-center text-xs font-mono">{{getTimeDate(detailData.current.ts).time}}</div>
+                                </div>
+                                <div class="mb-3 flex divide-x divide-gray-500">
+                                    <button @click="onGetPicture(detailData.imei, 'camreq:1,1')" class="w-full bg-gray-600 rounded-l py-3 leading-none relative overflow-hidden" :class="[detailData.isDualcam && !isProgress && !isLoading ? 'hover:text-green-300':'text-gray-700']" :disabled="!detailData.isDualcam || isProgress || isLoading">
+                                        <i v-if="detailData.isDualcam" class="ph ph-camera" style="font-size: 25px;"></i>
+                                        <i v-else class="ph ph-camera-slash" style="font-size: 25px;"></i>
+                                        <div style="font-size: 11px;">Depan</div>
+                                        <div v-show="isLoading && command == 'camreq:1,1'"  class="h-full w-full bg-gray-600 absolute left-0 top-0 flex justify-center items-center">
+                                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </div>
+                                    </button>
+                                    <button @click="onGetPicture(detailData.imei, 'camreq:1,2')" class="w-full bg-gray-600 rounded-r py-3 leading-none relative overflow-hidden" :class="[detailData.isDualcam && !isProgress && !isLoading ? 'hover:text-green-300':'text-gray-700']" :disabled="!detailData.isDualcam || isProgress || isLoading">
+                                        <i v-if="detailData.isDualcam" class="ph ph-camera" style="font-size: 25px;"></i>
+                                        <i v-else class="ph ph-camera-slash" style="font-size: 25px;"></i>
+                                        <div style="font-size: 11px;">Belakang</div>
+                                        <div v-show="isLoading && command == 'camreq:1,2'"  class="h-full w-full bg-gray-600 absolute left-0 top-0 flex justify-center items-center">
+                                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="mb-3 text-center leading-none grid grid-cols-2 divide-x divide-gray-600">
+                                    <div>
+                                        <div class="text-3xl font-mono leading-none">{{detailData.current.engineRPM}}</div>
+                                        <div class="text-gray-400 text-xs">RPM</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-3xl leading-none font-mono">{{detailData.current.vehicleSpeed}}</div>
+                                        <div class="text-xs text-gray-400">Km/Jam</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-5 font-light text-xs">
+                                    <table class="w-full">
+                                        <tbody class="divide-y divide-gray-600">
+                                            <tr>
+                                                <td>Mesin</td>
+                                                <td>: {{detailData.current.ignition ? 'On':'Off'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Oli level</td>
+                                                <td class="flex items-center space-x-1"><span>: </span> <svg :class="[detailData.current.oilLevel ? ' stroke-red-500 fill-red-500': 'stroke-green-500 fill-green-500']" fill="#000000" width="20px" height="20px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M 11 9 L 11 11 L 13 11 L 13 13 L 7.5625 13 L 5.84375 10.4375 L 5.53125 10 L 1 10 L 1 15.6875 L 6 17.6875 L 6 25 L 20.53125 25 L 20.8125 24.5625 L 29.5 12 L 31 12 L 31 10 L 27.65625 10 L 27.40625 10.1875 L 21 15 L 21 13 L 15 13 L 15 11 L 17 11 L 17 9 Z M 3 12 L 4.4375 12 L 6 14.34375 L 6 15.5 L 3 14.3125 Z M 25.78125 13.9375 L 19.5 23 L 8 23 L 8 15 L 19 15 L 19 19 L 20.59375 17.8125 Z M 29.5 16 C 29.5 16 28 18.671875 28 19.5 C 28 20.328125 28.671875 21 29.5 21 C 30.328125 21 31 20.328125 31 19.5 C 31 18.671875 29.5 16 29.5 16 Z"/></svg>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width: 35%">Odometer</td>
+                                                <td>: {{detailData.current.totalMileage / 1000}} Km</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width: 35%">Suhu mesin</td>
+                                                <td>: {{detailData.current.engineTemperature * 0.1}} ℃</td>
+                                            </tr>
+                                            <tr>
+                                                <td>GPS imei</td>
+                                                <td>: {{detailData.imei}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>GSM no</td>
+                                                <td>: {{detailData.gsm}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>GSM signal</td>
+                                                <td>: {{detailData.current.gsmSignal}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Koordinat</td>
+                                                <td>: {{getLngLat(detailData.current.latlng).lat}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td>: {{getLngLat(detailData.current.latlng).lng}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <button class="bg-green-500 h-9 px-2 text-green-50 w-full rounded">Mesin On</button>
+                                    </div>
+                                    <div>
+                                        <button class="bg-red-500 h-9 px-2 text-green-50 w-full rounded">Mesin Off</button>
+                                    </div>
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+            </div>
         </div>
+        <modal :show="showModal">
+            <div class="bg-white rounded p-1 border relative">
+                <button @click="showModal = false" class="h-7 w-7 bg-white border rounded absolute right-2 top-2 flex items-center justify-center">
+                    <i class="ph ph-x"></i>
+                </button>
+                <img width="950" :src="imgUrl" alt="">
+            </div>
+        </modal>
     </div>
 </template>
 
@@ -128,19 +173,23 @@ import { io } from 'socket.io-client'
 import axios from 'axios'
 import along from '@turf/along'
 import {lineString} from '@turf/helpers'
+import Modal from '../components/Modal.vue'
 export default {
+    components: {Modal},
     setup () {
+        const showModal = ref(false)
         const tabAll = ref(null)
         const tabOnline = ref(null)
         const tabOffline = ref(null)
         const activeTab = ref(null)
         const map = ref(null)
-        const socket = io(import.meta.env.VITE_API_URL)
+        const image = ref(null)
+        const socket = io('https://apigps.ndpteknologi.com')
         const geojson = reactive({
             type: 'FeatureCollection',
             features: []
         })
-
+        
         onMounted(() => {
             activeTab.value.style.width = tabAll.value.clientWidth+'px'
             mapboxgl.accessToken = 'pk.eyJ1IjoibmVuZGkiLCJhIjoiY2t4cTQweHg3NzEwaDJvbXVud2RsbWxwNiJ9.C080KdMXt4y_4oSjHaMnmw';
@@ -249,7 +298,17 @@ export default {
             })
             onLoadScoket()
         }
+        const progressBar = ref('0%')
+        const isProgress = ref(false)
         const onLoadScoket = () => {
+            socket.on('progress', (data) => {
+                progressBar.value = data
+            })
+            socket.on('done', (data) => {
+                progressBar.value = '0%'
+                isProgress.value = false
+                image.value = data
+            })
             socket.on('data', (data) => {
                 let index = devices.value.findIndex(obj => obj.imei == data.imei)
                 if(index > -1) {
@@ -289,6 +348,7 @@ export default {
 
         const isTracking = ref(false)
         const showDetail = ref(false)
+        const isTakePicture = ref(false)
         const detailData = ref(null)
         const mayReq = ref(null)
         const myLine = ref([])
@@ -366,6 +426,7 @@ export default {
                 })
             })
             isTracking.value = true
+            isTakePicture.value = false
         }
         const onCloseTrack = () => {
             socket.removeAllListeners()
@@ -373,6 +434,7 @@ export default {
             onLoadScoket()
             isTracking.value = false
             showDetail.value = false
+            isTakePicture.value = false
             getData()
         }
         const getTimeDate = (d) => {
@@ -443,7 +505,25 @@ export default {
                     break;
             }
         }
+        const isLoading = ref(false)
+        const command = ref('')
+        const onGetPicture = (imei, cmd) => {
+            command.value = cmd
+            isLoading.value = true
+            isTakePicture.value = true
+            axios.post('/devices/get-picture/'+imei, {
+                command: command.value
+            })
+            .then(res => {
+                isLoading.value = false
+                isProgress.value = true
+            })
+        }
+        const imgUrl = computed(() => {
+            return 'https://tcp.dwitamaelektrindo.com/' + image.value
+        })
         return {
+            showModal,
             tabAll,
             tabOnline,
             tabOffline,
@@ -454,11 +534,19 @@ export default {
             showDetail,
             detailData,
             dataDevices,
+            isTracking,
+            isLoading,
+            command,
+            isTakePicture,
+            isProgress,
+            progressBar,
+            imgUrl,
             onTab,
             onTrack,
             onCloseTrack,
             getTimeDate,
             getLngLat,
+            onGetPicture,
         }
     }
 }

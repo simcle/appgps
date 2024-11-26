@@ -56,6 +56,12 @@
                             <div class="mb-1">Merk kendaraan</div>
                             <input v-model="form.merk" type="text" name="merk_kendaraan" class="h-9 w-full rounded border px-3" placeholder="merk kendaraan" autocomplete="off">
                         </div>
+                        <div class="mb-5">
+                            <div class="flex items-center space-x-2">
+                                <input v-model="form.dualcam" type="checkbox">
+                                <span>dualcam</span>
+                            </div>
+                        </div>
                         <div class="text-right space-x-2">
                             <button @click="modal=false" type="button" class="bg-white h-9 rounded px-5 border">Batal</button>
                             <button type="submit" class="bg-blue-500 text-blue-50 h-9 rounded px-5 border">Simpan</button>
@@ -96,7 +102,8 @@ export default {
                     imei: '',
                     gsm: '',
                     nopol: '',
-                    merk: ''
+                    merk: '',
+                    dualcam: ''
                 }
             }
         })
@@ -104,7 +111,8 @@ export default {
             imei: '',
             gsm: '',
             nopol: '',
-            merk: ''
+            merk: '',
+            dualcam: ''
         })
         const error = ref({
             imei: ''
@@ -116,7 +124,8 @@ export default {
                 imei: val.imei,
                 gsm: val.gsm,
                 nopol: val.nopol,
-                merk: val.merk
+                merk: val.merk,
+                dualcam: val.isDualcam
             }
             modal.value = true
         }
